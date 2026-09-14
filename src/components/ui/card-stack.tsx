@@ -77,9 +77,9 @@ export function CardStack<T extends CardStackItem>({
   activeScale = 1.14,
   inactiveScale = 0.76,
   loop = true,
-  autoAdvance = false,
-  intervalMs = 3500,
-  pauseOnHover = true,
+  autoAdvance = true,
+  intervalMs = 3000,
+  pauseOnHover = false,
   showDots = true,
   className,
   onChangeIndex,
@@ -90,6 +90,7 @@ export function CardStack<T extends CardStackItem>({
   const [hovering, setHovering] = React.useState(false);
 
   const cardRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+  const prevOffsetsRef = React.useRef<(number | undefined)[]>([]);
   const isInitialRef = React.useRef(true);
   const hoverCooldownRef = React.useRef(false);
   const dragStartXRef = React.useRef<number | null>(null);
@@ -193,8 +194,8 @@ export function CardStack<T extends CardStackItem>({
       const targetScale = isActive
         ? activeScale
         : abs === 1
-        ? inactiveScale
-        : Math.max(0.60, inactiveScale - (abs - 1) * 0.15);
+          ? inactiveScale
+          : Math.max(0.60, inactiveScale - (abs - 1) * 0.15);
 
       // Visual hierarchy: Opacity and brightness
       const targetOpacity = !visible ? 0 : isActive ? 1.0 : abs === 1 ? 0.70 : 0.40;
@@ -209,26 +210,59 @@ export function CardStack<T extends CardStackItem>({
         el.style.pointerEvents = visible ? "auto" : "none";
       }
 
-      gsap.to(el, {
-        x: targetX,
-        y: targetY,
-        z: targetZ,
-        scale: targetScale,
-        rotationY: targetRotateY,
-        rotationZ: targetRotateZ,
-        rotationX: targetRotateX,
-        opacity: targetOpacity,
-        filter: `brightness(${targetBrightness})`,
-        duration: isInitial ? 0 : 0.28,
-        ease: "power2.out",
-        force3D: true,
-        overwrite: "auto",
-        onComplete: () => {
-          if (!isActive) {
-            el.style.zIndex = `${targetZIndex}`;
-          }
-        },
-      });
+      const prevOff = prevOffsetsRef.current[i];
+      prevOffsetsRef.current[i] = off;
+      const isWrapping = !isInitial && prevOff !== undefined && Math.abs(off - prevOff) > 2;
+
+      if (isWrapping) {
+        const entryX = off > 0 ? targetX + 50 : targetX - 50;
+        gsap.set(el, {
+          x: entryX,
+          y: targetY,
+          z: targetZ,
+          scale: targetScale,
+          rotationY: targetRotateY,
+          rotationZ: targetRotateZ,
+          rotationX: targetRotateX,
+          opacity: 0,
+          filter: `brightness(${targetBrightness})`,
+        });
+
+        gsap.to(el, {
+          x: targetX,
+          opacity: targetOpacity,
+          duration: isInitial ? 0 : 0.55,
+          ease: "power2.out",
+          force3D: true,
+          overwrite: "auto",
+          onComplete: () => {
+            if (!isActive) {
+              el.style.zIndex = `${targetZIndex}`;
+            }
+          },
+        });
+      } else {
+        gsap.to(el, {
+          x: targetX,
+          y: targetY,
+          z: targetZ,
+          scale: targetScale,
+          rotationY: targetRotateY,
+          rotationZ: targetRotateZ,
+          rotationX: targetRotateX,
+          opacity: targetOpacity,
+          filter: `brightness(${targetBrightness})`,
+          duration: isInitial ? 0 : 0.55,
+          ease: "power2.out",
+          force3D: true,
+          overwrite: "auto",
+          onComplete: () => {
+            if (!isActive) {
+              el.style.zIndex = `${targetZIndex}`;
+            }
+          },
+        });
+      }
     });
   }, [active, len, items, loop, maxOffset, cardSpacing, depthPx, activeLiftPx, activeScale, inactiveScale, stepDeg]);
 
@@ -320,7 +354,11 @@ export function CardStack<T extends CardStackItem>({
                   transformStyle: "preserve-3d",
                   transformOrigin: "center center",
                 }}
-                onMouseEnter={() => handleCardHover(i)}
+                onMouseEnter={() => {
+                  if (!autoAdvance) {
+                    handleCardHover(i);
+                  }
+                }}
                 onClick={() => setActive(i)}
               >
                 <div

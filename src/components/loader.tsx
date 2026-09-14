@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLanguage } from "@/context/language-context";
 import {
+  SamsungWelcomeEffect,
   SamsungHelloVietnameseEffect,
   SamsungHelloEnglishEffect,
 } from "@/components/ui/text-effect";
@@ -75,23 +76,13 @@ export function Loader({ ready, onDone }: LoaderProps) {
 
         {/* Large Centered Text Effect */}
         <div className="w-full flex items-center justify-center py-4">
-          {lang === "vi" ? (
-            <SamsungHelloVietnameseEffect
-              speed={0.58}
-              scale={1.0}
-              rotateY={-8}
-              className="w-full h-44 sm:h-56 md:h-72 lg:h-80 text-[#0d1e4c] drop-shadow-[0_8px_30px_rgba(14,42,197,0.22)]"
-              onAnimationComplete={handleAnimComplete}
-            />
-          ) : (
-            <SamsungHelloEnglishEffect
-              speed={0.58}
-              scale={1.0}
-              rotateY={-8}
-              className="w-full h-44 sm:h-56 md:h-64 lg:h-72 text-[#0d1e4c] drop-shadow-[0_8px_30px_rgba(14,42,197,0.22)]"
-              onAnimationComplete={handleAnimComplete}
-            />
-          )}
+          <SamsungWelcomeEffect
+            speed={0.58}
+            scale={1.0}
+            rotateY={-8}
+            className="w-full h-44 sm:h-56 md:h-72 lg:h-80 text-[#0d1e4c] drop-shadow-[0_8px_30px_rgba(14,42,197,0.22)]"
+            onAnimationComplete={handleAnimComplete}
+          />
         </div>
       </div>
     </div>

@@ -28,8 +28,9 @@ export function ProductsSection() {
         <CardStack
           items={t.items}
           initialIndex={0}
-          autoAdvance={false}
-          pauseOnHover={true}
+          autoAdvance={true}
+          intervalMs={3000}
+          pauseOnHover={false}
           showDots={true}
           cardWidth={660}
           cardHeight={390}
