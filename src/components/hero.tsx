@@ -1,9 +1,14 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
 import { content } from "@/lib/content";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface HeroProps {
   started: boolean;
@@ -54,23 +59,25 @@ export function Hero({ started }: HeroProps) {
     return () => ctx.revert();
   }, [started]);
 
-  // GSAP Smooth Scroll Parallax Transition
+  // GSAP Hardware-Accelerated ScrollTrigger Parallax Transition
   useEffect(() => {
-    const onScroll = () => {
-      if (!containerRef.current) return;
-      const scrollY = window.scrollY || 0;
-      const vh = window.innerHeight || 1;
-      const progress = Math.min(1, Math.max(0, scrollY / (vh * 0.8)));
-
-      gsap.set(containerRef.current, {
-        y: -progress * 120,
-        opacity: Math.max(0, 1 - progress * 1.6),
+    if (!containerRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.to(containerRef.current, {
+        y: -130,
+        opacity: 0,
+        ease: "power1.out",
         force3D: true,
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom 40%",
+          scrub: 0.4,
+        },
       });
-    };
+    });
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => ctx.revert();
   }, []);
 
   const scrollTo = (id: string) => {

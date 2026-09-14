@@ -225,7 +225,6 @@ export function CardStack<T extends CardStackItem>({
           rotationZ: targetRotateZ,
           rotationX: targetRotateX,
           opacity: 0,
-          filter: `brightness(${targetBrightness})`,
         });
 
         gsap.to(el, {
@@ -251,7 +250,6 @@ export function CardStack<T extends CardStackItem>({
           rotationZ: targetRotateZ,
           rotationX: targetRotateX,
           opacity: targetOpacity,
-          filter: `brightness(${targetBrightness})`,
           duration: isInitial ? 0 : 0.55,
           ease: "power2.out",
           force3D: true,

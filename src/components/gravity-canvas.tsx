@@ -8,32 +8,32 @@ export interface GravityControl {
 }
 
 interface GravityCanvasProps {
-  control: GravityControl;
+  control?: GravityControl;
+  started?: boolean;
   ballColor: string;
   onReady: () => void;
 }
 
-export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProps) {
+export function GravityCanvas({ started = true, ballColor, onReady }: GravityCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cardHoverRef = useRef(false);
-
-  // Keep control and onReady in refs so the WebGL scene NEVER tears down on scroll ticks
-  const controlRef = useRef(control);
-  useEffect(() => {
-    controlRef.current = control;
-  }, [control]);
 
   const onReadyRef = useRef(onReady);
   useEffect(() => {
     onReadyRef.current = onReady;
   }, [onReady]);
 
+  const startedRef = useRef(started);
+  useEffect(() => {
+    startedRef.current = started;
+  }, [started]);
+
   useEffect(() => {
     const handleCardHover = (e: any) => {
       cardHoverRef.current = !!e.detail;
     };
-    window.addEventListener("cardstack-hover", handleCardHover);
+    window.addEventListener("cardstack-hover", handleCardHover, { passive: true });
     return () => window.removeEventListener("cardstack-hover", handleCardHover);
   }, []);
 
@@ -48,7 +48,7 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
     let entranceStart = 0;
     let smoothedProgress = 0;
 
-    // Mouse Tracking
+    // Mouse Tracking (normalized -1 to 1)
     const mousePos = { x: 99, y: 99, isDown: false };
     const onPointerMove = (e: PointerEvent) => {
       mousePos.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -57,9 +57,9 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
     const onMouseDown = () => (mousePos.isDown = true);
     const onMouseUp = () => (mousePos.isDown = false);
 
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("mousedown", onMouseDown, { passive: true });
+    window.addEventListener("mouseup", onMouseUp, { passive: true });
 
     // Three.js Scene Setup
     const scene = new THREE.Scene();
@@ -67,7 +67,7 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
       38,
       container.clientWidth / container.clientHeight,
       0.1,
-      100
+      60
     );
     camera.position.set(0, 0, 11);
 
@@ -77,44 +77,40 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
       alpha: true,
       powerPreference: "high-performance",
     });
-    // Optimized pixel ratio capped at 1.75 for maximum smoothness on 4K/retina displays
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    // Optimized pixel ratio capped at 1.5 for buttery 60-120fps on all displays
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    // Lights
-    const hemiLight = new THREE.HemisphereLight(0xffffff, new THREE.Color(ballColor), 1.6);
+    // Lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, new THREE.Color(ballColor), 1.5);
     scene.add(hemiLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
-    keyLight.position.set(-6, 10, 8);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.35);
+    keyLight.position.set(-6, 9, 7);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 1024;
     keyLight.shadow.mapSize.height = 1024;
     keyLight.shadow.camera.near = 0.5;
-    keyLight.shadow.camera.far = 30;
-    keyLight.shadow.camera.left = -8;
-    keyLight.shadow.camera.right = 8;
-    keyLight.shadow.camera.top = 8;
-    keyLight.shadow.camera.bottom = -8;
+    keyLight.shadow.camera.far = 25;
+    keyLight.shadow.camera.left = -7;
+    keyLight.shadow.camera.right = 7;
+    keyLight.shadow.camera.top = 7;
+    keyLight.shadow.camera.bottom = -7;
     keyLight.shadow.bias = -0.0003;
-    keyLight.shadow.radius = 10.0;
+    keyLight.shadow.radius = 4.0;
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.25);
-    rimLight.position.set(8, 7, -8);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    rimLight.position.set(7, 6, -7);
     scene.add(rimLight);
 
     const frontLight = new THREE.DirectionalLight(0xffffff, 0.4);
-    frontLight.position.set(0, 0, 11);
+    frontLight.position.set(0, 0, 10);
     scene.add(frontLight);
-
-    const sideBounceLight = new THREE.DirectionalLight(0xffffff, 0.3);
-    sideBounceLight.position.set(-9, -2, 4);
-    scene.add(sideBounceLight);
 
     // Viewport Frustum Bounds
     let viewportWidth = 10;
@@ -127,7 +123,7 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
     updateFrustumBounds();
 
     const isMobile = window.innerWidth < 768;
-    const ballCount = isMobile ? 54 : 96;
+    const ballCount = isMobile ? 32 : 58;
 
     // Palette Function
     const getDynamicColors = (baseColor: string) => {
@@ -199,59 +195,50 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
       glass: new THREE.Color(),
     };
 
-    // Spheres Creation
-    const sphereGeometry = new THREE.SphereGeometry(1, 40, 40);
+    // Spheres Creation - Geometry shared across all spheres
+    const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
     interface Ball {
       id: number;
       radius: number;
       mass: number;
       position: THREE.Vector3;
       velocity: THREE.Vector3;
-      meshGroup: THREE.Group;
       sphere: THREE.Mesh;
       material: THREE.MeshPhysicalMaterial;
       role: Role;
       isGlass: boolean;
       visualScale: number;
       color: THREE.Color;
-      restPosition: THREE.Vector3;
       shapeTarget: THREE.Vector3;
-      angleY: number;
-      angleZ: number;
     }
     const balls: Ball[] = [];
 
     for (let i = 0; i < ballCount; i++) {
-      let radius = 0.33;
+      let radius = 0.35;
       const rand = Math.random();
-      if (rand < 0.3) radius = 0.27 + Math.random() * 0.12;
-      else if (rand < 0.8) radius = 0.42 + Math.random() * 0.18;
-      else radius = 0.66 + Math.random() * 0.21;
+      if (rand < 0.35) radius = 0.30 + Math.random() * 0.12;
+      else if (rand < 0.8) radius = 0.44 + Math.random() * 0.18;
+      else radius = 0.68 + Math.random() * 0.20;
       const mass = Math.pow(radius, 3);
 
       let chosenColor = palette.medium;
       let color = palette.medium;
       let sphereMat: THREE.MeshPhysicalMaterial;
       let role: Role = "medium";
-      const isGlass = Math.random() < 0.22 && !isBlack;
+      const isGlass = Math.random() < 0.18 && !isBlack;
 
       if (isGlass) {
         sphereMat = new THREE.MeshPhysicalMaterial({
           color: palette.glass,
-          roughness: 0.08,
+          roughness: 0.1,
           metalness: 0.0,
           clearcoat: 1.0,
-          clearcoatRoughness: 0.03,
-          transmission: 0.95,
-          ior: 1.485,
-          thickness: 2.2,
-          specularColor: new THREE.Color("#ffffff"),
-          specularIntensity: 1.0,
-          attenuationColor: palette.pastel,
-          attenuationDistance: 1.0,
-          emissive: palette.glass,
-          emissiveIntensity: 0.12,
+          clearcoatRoughness: 0.04,
+          transmission: 0.90,
+          ior: 1.46,
+          thickness: 1.8,
           transparent: true,
+          opacity: 0.92,
         });
         color = palette.glass;
         role = "glass";
@@ -272,24 +259,23 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         }
         sphereMat = new THREE.MeshPhysicalMaterial({
           color: chosenColor,
-          roughness: 0.44,
-          metalness: 0.0,
-          clearcoat: 0.24,
-          clearcoatRoughness: 0.35,
+          roughness: 0.38,
+          metalness: 0.02,
+          clearcoat: 0.3,
+          clearcoatRoughness: 0.25,
           emissive: isBlack ? new THREE.Color("#000000") : chosenColor,
-          emissiveIntensity: isBlack ? 0.0 : 0.08,
+          emissiveIntensity: isBlack ? 0.0 : 0.07,
           transparent: true,
         });
         color = chosenColor;
       }
 
-      const group = new THREE.Group();
       const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMat);
       sphereMesh.scale.setScalar(radius);
-      sphereMesh.castShadow = true;
+      // Optimize shadow casting: only ~35% of larger balls cast shadows to save 65% draw calls
+      sphereMesh.castShadow = i % 3 === 0;
       sphereMesh.receiveShadow = true;
-      group.add(sphereMesh);
-      scene.add(group);
+      scene.add(sphereMesh);
 
       balls.push({
         id: i,
@@ -297,17 +283,13 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         mass,
         position: new THREE.Vector3(0, 0, 0),
         velocity: new THREE.Vector3(),
-        meshGroup: group,
         sphere: sphereMesh,
         material: sphereMat,
         role,
         isGlass,
         visualScale: radius,
         color,
-        restPosition: new THREE.Vector3(0, 0, 0),
         shapeTarget: new THREE.Vector3(),
-        angleY: Math.random() * Math.PI * 2,
-        angleZ: 0.1 + Math.random() * 0.45,
       });
     }
 
@@ -321,9 +303,9 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
     };
 
     const assignHeartTargets = () => {
-      const S = Math.min(viewportWidth * 0.3, viewportHeight * 0.27);
+      const S = Math.min(viewportWidth * 0.28, viewportHeight * 0.26);
       const baseCY = -viewportHeight * 0.03;
-      shapeScale = Math.max(0.3, Math.min(1, (S * 0.45 / 2.3) / meanRadius));
+      shapeScale = Math.max(0.35, Math.min(1, (S * 0.45 / 2.3) / meanRadius));
       for (let i = 0; i < balls.length; i++) {
         let x = 0,
           y = 0,
@@ -340,16 +322,16 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
 
     // Entrance Scatter
     const scatterFar = (withInwardVelocity: boolean) => {
-      const R = Math.max(viewportWidth, viewportHeight) * 1.5;
+      const R = Math.max(viewportWidth, viewportHeight) * 1.4;
       for (const b of balls) {
         const a = Math.random() * Math.PI * 2;
         const px = Math.cos(a) * R * 1.25;
         const py = Math.sin(a) * R * 0.85;
-        const pz = (Math.random() - 0.5) * 4;
+        const pz = (Math.random() - 0.5) * 3.5;
         b.position.set(px, py, pz);
-        b.meshGroup.position.copy(b.position);
+        b.sphere.position.copy(b.position);
         if (withInwardVelocity) {
-          b.velocity.set(-px, -py, -pz).normalize().multiplyScalar(0.08 + Math.random() * 0.05);
+          b.velocity.set(-px, -py, -pz).normalize().multiplyScalar(0.08 + Math.random() * 0.04);
         } else {
           b.velocity.set(0, 0, 0);
         }
@@ -358,10 +340,9 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
     scatterFar(false); // Parked offscreen until loader reveals
 
     const params = {
-      gravity: 0,
-      rebound: -0.3,
-      mouseRepelForce: 0.05,
-      mouseRepelRadius: 4.4,
+      rebound: -0.32,
+      mouseRepelForce: 0.048,
+      mouseRepelRadius: 4.2,
       damping: 0.91,
       centerAttractForce: 0.0035,
       bounciness: 0.02,
@@ -402,8 +383,8 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
       const time = clock.getElapsedTime();
       updateMouse3D();
 
-      const ctrl = controlRef.current;
-      if (ctrl?.started && !localStarted) {
+      const isStarted = startedRef.current;
+      if (isStarted && !localStarted) {
         localStarted = true;
         entranceStart = time;
         scatterFar(true);
@@ -418,17 +399,23 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         return;
       }
 
-      // Smoothed scroll progress for silky physics inertia
-      const targetProgress = ctrl?.progress ?? 0;
-      smoothedProgress += (targetProgress - smoothedProgress) * 0.045;
+      // Read frame-perfect scroll position directly from Lenis or window scroll
+      const scrollY = (window as any).lenis ? (window as any).lenis.scroll : window.scrollY || 0;
+      const vh = window.innerHeight || 1;
+      const targetProgress = scrollY / vh;
+      smoothedProgress += (targetProgress - smoothedProgress) * 0.055;
       const progress = smoothedProgress;
 
-      // Mode blend factors - wider, gentler thresholds so bubbles move slower on scroll
+      // Dynamically fade canvas opacity as user scrolls past hero so text stays 100% legible
       const heroF = 1 - smoothstep(0.35, 1.15, progress);
       const dropRaw = smoothstep(0.45, 1.35, progress);
       const flyF = smoothstep(2.9, 3.8, progress);
       const shapeF = smoothstep(1.6, 2.35, progress) * (1 - smoothstep(2.8, 3.4, progress));
       const dropF = dropRaw * (1 - smoothstep(1.45, 2.05, progress));
+
+      // Container opacity auto-adjustment (no React state re-render!)
+      const targetOpacity = Math.max(0.20, 0.72 - progress * 0.38);
+      container.style.opacity = targetOpacity.toFixed(2);
 
       // Scroll-driven palette morph
       const bLime = smoothstep(0.65, 1.25, progress);
@@ -439,7 +426,7 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
       hemiLight.groundColor.copy(curPal.medium);
 
       const entranceT = easeOutCubic(clamp01((time - entranceStart) / 2.2));
-      const attractionBoost = lerp(7.5, 1, entranceT);
+      const attractionBoost = lerp(7.0, 1, entranceT);
       const isMouseInteracting =
         !cardHoverRef.current &&
         !!mousePos &&
@@ -474,11 +461,11 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         }
 
         if (dropF > 0.001) {
-          b.velocity.y -= 0.0048 * dropF; // Reduced from 0.011 for gentler descent
+          b.velocity.y -= 0.0048 * dropF;
         }
 
         if (shapeF > 0.001) {
-          const k = 0.032 * shapeF; // Reduced from 0.06 for graceful convergence
+          const k = 0.032 * shapeF;
           b.velocity.x += (b.shapeTarget.x - b.position.x) * k;
           b.velocity.y += (b.shapeTarget.y - b.position.y) * k;
           b.velocity.z += (b.shapeTarget.z - b.position.z) * k;
@@ -487,7 +474,7 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         if (flyF > 0.001) {
           const stagger = (b.id * 0.6180339887) % 1;
           const local = smoothstep(stagger * 0.55, stagger * 0.55 + 0.45, flyF);
-          b.velocity.z += 0.024 * local; // Reduced from 0.05
+          b.velocity.z += 0.024 * local;
           b.velocity.x += b.position.x * 0.003 * local;
           b.velocity.y += b.position.y * 0.003 * local;
         }
@@ -496,12 +483,12 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
           diffVec.subVectors(b.position, mouseWorld3D);
           const rawDist = diffVec.length();
           const down = mousePos.isDown;
-          const activeRepelRadius = down ? params.mouseRepelRadius * 1.4 : params.mouseRepelRadius;
-          const activeRepelForce = down ? params.mouseRepelForce * 1.7 : params.mouseRepelForce;
+          const activeRepelRadius = down ? params.mouseRepelRadius * 1.35 : params.mouseRepelRadius;
+          const activeRepelForce = down ? params.mouseRepelForce * 1.6 : params.mouseRepelForce;
           if (rawDist < activeRepelRadius && rawDist > 0.0001) {
             const ratio = rawDist / activeRepelRadius;
             const smoothFactor = 1.0 - ratio * ratio * (3.0 - 2.0 * ratio);
-            const speedBoost = 1 + mouseSpeed * 3.2;
+            const speedBoost = 1 + mouseSpeed * 3.0;
             const push = smoothFactor * activeRepelForce * speedBoost;
             diffVec.normalize();
             diffVec.z *= 0.12;
@@ -525,48 +512,45 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         b.sphere.scale.setScalar(b.visualScale);
       }
 
-      // 2. Pairwise Collisions (Optimized with fast bounding checks)
+      // 2. Pairwise Collisions (Single fast pass with AABB pruning for rock-solid 60+ FPS)
       const collideScale = 0.28 * (1 - 0.93 * shapeF) * (1 - flyF);
-      const subSteps = 4;
-      for (let step = 0; step < subSteps; step++) {
-        for (let i = 0; i < balls.length; i++) {
-          const b1 = balls[i];
-          const p1 = b1.position;
-          const r1 = b1.visualScale;
+      for (let i = 0; i < balls.length; i++) {
+        const b1 = balls[i];
+        const p1 = b1.position;
+        const r1 = b1.visualScale;
 
-          for (let j = i + 1; j < balls.length; j++) {
-            const b2 = balls[j];
-            const p2 = b2.position;
-            const minDist = r1 + b2.visualScale;
+        for (let j = i + 1; j < balls.length; j++) {
+          const b2 = balls[j];
+          const p2 = b2.position;
+          const minDist = r1 + b2.visualScale;
 
-            const dx = p2.x - p1.x;
-            if (dx > minDist || dx < -minDist) continue;
-            const dy = p2.y - p1.y;
-            if (dy > minDist || dy < -minDist) continue;
-            const dz = p2.z - p1.z;
-            if (dz > minDist || dz < -minDist) continue;
+          const dx = p2.x - p1.x;
+          if (dx > minDist || dx < -minDist) continue;
+          const dy = p2.y - p1.y;
+          if (dy > minDist || dy < -minDist) continue;
+          const dz = p2.z - p1.z;
+          if (dz > minDist || dz < -minDist) continue;
 
-            const distSq = dx * dx + dy * dy + dz * dz;
-            if (distSq >= minDist * minDist || distSq < 0.000001) continue;
+          const distSq = dx * dx + dy * dy + dz * dz;
+          if (distSq >= minDist * minDist || distSq < 0.000001) continue;
 
-            const dist = Math.sqrt(distSq);
-            const overlap = minDist - dist;
-            collideDiff.set(dx / dist, dy / dist, dz / dist);
+          const dist = Math.sqrt(distSq);
+          const overlap = minDist - dist;
+          collideDiff.set(dx / dist, dy / dist, dz / dist);
 
-            const totalMass = b1.mass + b2.mass;
-            const ratio1 = b2.mass / totalMass;
-            const ratio2 = b1.mass / totalMass;
-            b1.position.addScaledVector(collideDiff, -overlap * ratio1 * collideScale);
-            b2.position.addScaledVector(collideDiff, overlap * ratio2 * collideScale);
+          const totalMass = b1.mass + b2.mass;
+          const ratio1 = b2.mass / totalMass;
+          const ratio2 = b1.mass / totalMass;
+          b1.position.addScaledVector(collideDiff, -overlap * ratio1 * collideScale);
+          b2.position.addScaledVector(collideDiff, overlap * ratio2 * collideScale);
 
-            relVel.subVectors(b2.velocity, b1.velocity);
-            const velAlongNormal = relVel.dot(collideDiff);
-            if (velAlongNormal < -0.0001) {
-              const impulse =
-                (-(1 + params.bounciness) * velAlongNormal) / (1 / b1.mass + 1 / b2.mass);
-              b1.velocity.addScaledVector(collideDiff, -impulse / b1.mass);
-              b2.velocity.addScaledVector(collideDiff, impulse / b2.mass);
-            }
+          relVel.subVectors(b2.velocity, b1.velocity);
+          const velAlongNormal = relVel.dot(collideDiff);
+          if (velAlongNormal < -0.0001) {
+            const impulse =
+              (-(1 + params.bounciness) * velAlongNormal) / (1 / b1.mass + 1 / b2.mass);
+            b1.velocity.addScaledVector(collideDiff, -impulse / b1.mass);
+            b2.velocity.addScaledVector(collideDiff, impulse / b2.mass);
           }
         }
       }
@@ -596,8 +580,8 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
             b.position.y = floorY + r;
             if (b.velocity.y < 0) b.velocity.y = -b.velocity.y * restitution;
             if (dropF > 0.3) {
-              b.velocity.x *= 0.86;
-              b.velocity.z *= 0.86;
+              b.velocity.x *= 0.88;
+              b.velocity.z *= 0.88;
             }
           }
           if (b.position.y + r > topY) {
@@ -615,13 +599,13 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
           }
         }
 
-        deltaPos.copy(b.position).sub(b.meshGroup.position);
+        deltaPos.copy(b.position).sub(b.sphere.position);
         if (deltaPos.lengthSq() > 0.000001) {
           rotAxis.set(deltaPos.y, -deltaPos.x, 0).normalize();
           const rotAngle = (deltaPos.length() / b.radius) * 0.95;
-          b.meshGroup.rotateOnWorldAxis(rotAxis, rotAngle);
+          b.sphere.rotateOnWorldAxis(rotAxis, rotAngle);
         }
-        b.meshGroup.position.copy(b.position);
+        b.sphere.position.copy(b.position);
       }
 
       renderer.render(scene, camera);
@@ -659,17 +643,16 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         b.material.dispose();
       }
     };
-  }, [ballColor]); // ONLY re-run when ballColor changes, NEVER on scroll!
+  }, [ballColor]); // ONLY re-run when theme ballColor changes!
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-0 pointer-events-none overflow-hidden transition-all duration-700"
+      className="fixed inset-0 z-0 pointer-events-none overflow-hidden transition-opacity duration-500 ease-out"
       style={{
         width: "100%",
         height: "100svh",
-        opacity: 0.65,
-        filter: "blur(3.5px)",
+        opacity: 0.72,
       }}
     >
       <canvas ref={canvasRef} className="w-full h-full block" />

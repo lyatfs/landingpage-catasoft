@@ -1,20 +1,76 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CardStack } from "@/components/ui/card-stack";
 import { useLanguage } from "@/context/language-context";
 import { content } from "@/lib/content";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function ProductsSection() {
   const { lang } = useLanguage();
   const t = content[lang].products;
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const showcaseRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      if (headerRef.current) {
+        gsap.fromTo(
+          headerRef.current,
+          { opacity: 0, y: 35 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: "top 88%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      }
+
+      if (showcaseRef.current) {
+        gsap.fromTo(
+          showcaseRef.current,
+          { opacity: 0, y: 40, scale: 0.97 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: showcaseRef.current,
+              start: "top 85%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="products"
       className="relative min-h-[100svh] py-24 md:py-32 px-6 md:px-12 flex flex-col justify-center items-center text-center z-20 pointer-events-auto"
     >
       {/* Section Header */}
-      <div className="max-w-3xl mx-auto mb-10 md:mb-14 pointer-events-auto">
+      <div ref={headerRef} className="max-w-3xl mx-auto mb-10 md:mb-14 pointer-events-auto">
         <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-neutral-950 dark:text-white tracking-tight leading-tight">
           {t.title}
         </h2>
@@ -24,7 +80,7 @@ export function ProductsSection() {
       </div>
 
       {/* CardStack Showcase */}
-      <div className="w-full max-w-6xl mx-auto relative pointer-events-auto">
+      <div ref={showcaseRef} className="w-full max-w-6xl mx-auto relative pointer-events-auto">
         <CardStack
           items={t.items}
           initialIndex={0}

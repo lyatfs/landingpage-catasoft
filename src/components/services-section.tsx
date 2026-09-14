@@ -1,5 +1,7 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   Bot,
   ShoppingBag,
@@ -10,6 +12,10 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
 import { content, ServiceItem } from "@/lib/content";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const blockThemeStyles = {
   blue: {
@@ -80,6 +86,59 @@ export function ServicesSection() {
   const { lang } = useLanguage();
   const t = content[lang].services;
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardsGridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // Header entrance animation
+      if (headerRef.current) {
+        gsap.fromTo(
+          headerRef.current,
+          { opacity: 0, y: 35 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: "top 88%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      }
+
+      // Staggered bento cards entrance animation
+      if (cardsGridRef.current) {
+        const cards = cardsGridRef.current.children;
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 50, scale: 0.96 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8,
+            stagger: 0.12,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: cardsGridRef.current,
+              start: "top 82%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   const handleCtaClick = (id: string) => {
     if (id === "ai-products" || id === "ecommerce") {
       const el = document.getElementById("products");
@@ -92,11 +151,12 @@ export function ServicesSection() {
 
   return (
     <section
+      ref={sectionRef}
       id="services"
       className="relative min-h-[100svh] py-28 md:py-36 px-6 md:px-12 flex flex-col justify-center items-center text-center z-10 pointer-events-none font-montserrat"
     >
       {/* Section Header */}
-      <div className="max-w-3xl mx-auto mb-12 md:mb-16 pointer-events-auto">
+      <div ref={headerRef} className="max-w-3xl mx-auto mb-12 md:mb-16 pointer-events-auto">
         <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-neutral-950 dark:text-white tracking-tight leading-tight">
           {t.title}
         </h2>
@@ -106,7 +166,10 @@ export function ServicesSection() {
       </div>
 
       {/* 4 Strategic Orientation Balanced 2x2 Grid Cards */}
-      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 items-stretch pointer-events-auto">
+      <div
+        ref={cardsGridRef}
+        className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 items-stretch pointer-events-auto"
+      >
         {t.items.map((item: ServiceItem) => {
           const theme = blockThemeStyles[item.accentColor] || blockThemeStyles.blue;
           const Icon = pillarIcons[item.id as keyof typeof pillarIcons] || Bot;

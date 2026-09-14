@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Loader } from "@/components/loader";
-import { GravityCanvas, GravityControl } from "@/components/gravity-canvas";
+import { GravityCanvas } from "@/components/gravity-canvas";
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
 import { ServicesSection } from "@/components/services-section";
@@ -19,17 +20,20 @@ import { StudioControls, THEMES, ThemeOption } from "@/components/studio-control
 import { useLanguage } from "@/context/language-context";
 import { content } from "@/lib/content";
 
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export default function Home() {
   const { lang } = useLanguage();
   const [ready, setReady] = useState(false);
   const [started, setStarted] = useState(false);
-  const [control, setControl] = useState<GravityControl>({ progress: 0, started: false });
   const [bgStage, setBgStage] = useState(0);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>(THEMES[0]!);
   const [ballColor, setBallColor] = useState(THEMES[0]!.ballColor);
 
-  // High-performance Smooth Scroll (Lenis) integrated with GSAP Ticker & Three.js
+  // High-performance Smooth Scroll (Lenis) integrated with GSAP ScrollTrigger & Ticker
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.history.scrollRestoration = "manual";
@@ -37,23 +41,23 @@ export default function Home() {
     }
 
     const lenis = new Lenis({
-      duration: 1.25,
+      duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 0.85,
-      touchMultiplier: 1.1,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.15,
     });
 
     // Expose lenis globally for smooth navigation scrolling
     (window as any).lenis = lenis;
 
+    // Link Lenis to GSAP ScrollTrigger
+    lenis.on("scroll", ScrollTrigger.update);
+
+    // Only update bgStage when threshold is crossed to prevent full-page re-renders
     lenis.on("scroll", ({ scroll }: { scroll: number }) => {
       const vh = window.innerHeight || 1;
       const progress = scroll / vh;
-      setControl((prev) =>
-        Math.abs(prev.progress - progress) < 0.002 ? prev : { ...prev, progress }
-      );
-
       const stage = progress > 1.55 ? 2 : progress > 0.7 ? 1 : 0;
       setBgStage((prev) => (prev === stage ? prev : stage));
     });
@@ -77,7 +81,6 @@ export default function Home() {
 
   const handleDone = useCallback(() => {
     setStarted(true);
-    setControl((prev) => ({ ...prev, started: true }));
   }, []);
 
   const handleSelectTheme = (theme: ThemeOption) => {
@@ -107,7 +110,7 @@ export default function Home() {
 
       {/* WebGL 3D Gravity Canvas */}
       <GravityCanvas
-        control={control}
+        started={started}
         ballColor={ballColor}
         onReady={handleReady}
       />
