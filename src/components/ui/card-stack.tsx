@@ -104,8 +104,18 @@ export function CardStack<T extends CardStackItem>({
     onChangeIndex?.(active, items[active]!);
   }, [active, len, items, onChangeIndex]);
 
+  const [windowWidth, setWindowWidth] = React.useState(1200);
+
+  React.useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const maxOffset = Math.max(0, Math.floor(maxVisible / 2));
-  const cardSpacing = Math.max(10, Math.round(cardWidth * (1 - overlap)));
+  const effectiveCardWidth = Math.min(cardWidth, windowWidth * 0.88);
+  const cardSpacing = Math.max(10, Math.round(effectiveCardWidth * (1 - overlap)));
   const stepDeg = maxOffset > 0 ? spreadDeg / maxOffset : 0;
 
   const canGoPrev = loop || active > 0;
@@ -305,8 +315,8 @@ export function CardStack<T extends CardStackItem>({
                     : "cursor-pointer border-white/30 hover:border-white/60 shadow-xl"
                 )}
                 style={{
-                  width: `min(${cardWidth}px, 90vw)`,
-                  height: cardHeight,
+                  width: `min(${cardWidth}px, 88vw)`,
+                  height: `min(${cardHeight}px, 62vh)`,
                   transformStyle: "preserve-3d",
                   transformOrigin: "center center",
                 }}

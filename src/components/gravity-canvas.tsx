@@ -46,6 +46,7 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
     let reportedReady = false;
     let localStarted = false;
     let entranceStart = 0;
+    let smoothedProgress = 0;
 
     // Mouse Tracking
     const mousePos = { x: 99, y: 99, isDown: false };
@@ -417,18 +418,21 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         return;
       }
 
-      const progress = ctrl?.progress ?? 0;
+      // Smoothed scroll progress for silky physics inertia
+      const targetProgress = ctrl?.progress ?? 0;
+      smoothedProgress += (targetProgress - smoothedProgress) * 0.045;
+      const progress = smoothedProgress;
 
-      // Mode blend factors
-      const heroF = 1 - smoothstep(0.3, 0.8, progress);
-      const dropRaw = smoothstep(0.4, 0.95, progress);
-      const flyF = smoothstep(2.7, 3.45, progress);
-      const shapeF = smoothstep(1.4, 2.05, progress) * (1 - smoothstep(2.55, 3.0, progress));
-      const dropF = dropRaw * (1 - smoothstep(1.25, 1.75, progress));
+      // Mode blend factors - wider, gentler thresholds so bubbles move slower on scroll
+      const heroF = 1 - smoothstep(0.35, 1.15, progress);
+      const dropRaw = smoothstep(0.45, 1.35, progress);
+      const flyF = smoothstep(2.9, 3.8, progress);
+      const shapeF = smoothstep(1.6, 2.35, progress) * (1 - smoothstep(2.8, 3.4, progress));
+      const dropF = dropRaw * (1 - smoothstep(1.45, 2.05, progress));
 
       // Scroll-driven palette morph
-      const bLime = smoothstep(0.55, 1.05, progress);
-      const bPink = smoothstep(1.4, 1.95, progress);
+      const bLime = smoothstep(0.65, 1.25, progress);
+      const bPink = smoothstep(1.55, 2.15, progress);
       for (const role of ROLES) {
         curPal[role].copy(palHero[role]).lerp(palLime[role], bLime).lerp(palPink[role], bPink);
       }
@@ -446,7 +450,7 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
       prevMouseWorld.copy(mouseWorld3D);
 
       let damping = 0.91;
-      damping = lerp(damping, 0.992, dropF);
+      damping = lerp(damping, 0.965, dropF);
       damping = lerp(damping, 0.9, shapeF);
       damping = lerp(damping, 0.985, flyF);
 
@@ -470,11 +474,11 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         }
 
         if (dropF > 0.001) {
-          b.velocity.y -= 0.011 * dropF;
+          b.velocity.y -= 0.0048 * dropF; // Reduced from 0.011 for gentler descent
         }
 
         if (shapeF > 0.001) {
-          const k = 0.06 * shapeF;
+          const k = 0.032 * shapeF; // Reduced from 0.06 for graceful convergence
           b.velocity.x += (b.shapeTarget.x - b.position.x) * k;
           b.velocity.y += (b.shapeTarget.y - b.position.y) * k;
           b.velocity.z += (b.shapeTarget.z - b.position.z) * k;
@@ -483,9 +487,9 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
         if (flyF > 0.001) {
           const stagger = (b.id * 0.6180339887) % 1;
           const local = smoothstep(stagger * 0.55, stagger * 0.55 + 0.45, flyF);
-          b.velocity.z += 0.05 * local;
-          b.velocity.x += b.position.x * 0.006 * local;
-          b.velocity.y += b.position.y * 0.006 * local;
+          b.velocity.z += 0.024 * local; // Reduced from 0.05
+          b.velocity.x += b.position.x * 0.003 * local;
+          b.velocity.y += b.position.y * 0.003 * local;
         }
 
         if (mousePos && isMouseInteracting) {
@@ -660,8 +664,13 @@ export function GravityCanvas({ control, ballColor, onReady }: GravityCanvasProp
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
-      style={{ width: "100%", height: "100svh" }}
+      className="fixed inset-0 z-0 pointer-events-none overflow-hidden transition-all duration-700"
+      style={{
+        width: "100%",
+        height: "100svh",
+        opacity: 0.65,
+        filter: "blur(3.5px)",
+      }}
     >
       <canvas ref={canvasRef} className="w-full h-full block" />
     </div>

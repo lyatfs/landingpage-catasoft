@@ -34,11 +34,10 @@ export function Navbar({ onOpenControls }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 pointer-events-none ${
-        scrolled
+      className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 pointer-events-none ${scrolled
           ? "bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.05)] py-3 md:py-4"
           : "bg-transparent py-4 md:py-6"
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         {/* Left: Logo & Wordmark */}
@@ -118,11 +117,10 @@ export function Navbar({ onOpenControls }: NavbarProps) {
             {/* Vietnam Flag Button */}
             <button
               onClick={() => setLang("vi")}
-              className={`flex items-center justify-center p-1 rounded-full transition-all duration-200 ${
-                lang === "vi"
+              className={`flex items-center justify-center p-1 rounded-full transition-all duration-200 ${lang === "vi"
                   ? "bg-white/90 dark:bg-white/20 shadow-sm ring-1.5 ring-brand-blue scale-105"
                   : "opacity-45 hover:opacity-85 grayscale hover:grayscale-0"
-              }`}
+                }`}
               aria-label="Tiếng Việt"
             >
               {/* Vietnam Flag SVG */}
@@ -142,11 +140,10 @@ export function Navbar({ onOpenControls }: NavbarProps) {
             {/* UK Flag Button */}
             <button
               onClick={() => setLang("en")}
-              className={`flex items-center justify-center p-1 rounded-full transition-all duration-200 ${
-                lang === "en"
+              className={`flex items-center justify-center p-1 rounded-full transition-all duration-200 ${lang === "en"
                   ? "bg-white/90 dark:bg-white/20 shadow-sm ring-1.5 ring-brand-blue scale-105"
                   : "opacity-45 hover:opacity-85 grayscale hover:grayscale-0"
-              }`}
+                }`}
               aria-label="English"
             >
               {/* UK Flag SVG */}

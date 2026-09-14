@@ -37,11 +37,11 @@ export default function Home() {
     }
 
     const lenis = new Lenis({
-      duration: 0.85,
+      duration: 1.25,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 1.15,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.1,
     });
 
     // Expose lenis globally for smooth navigation scrolling

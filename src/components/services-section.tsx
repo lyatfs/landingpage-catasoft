@@ -115,7 +115,7 @@ export function ServicesSection() {
           return (
             <div
               key={item.id}
-              className={`group relative rounded-[32px] p-8 sm:p-10 text-left transition-all duration-500 hover:-translate-y-2 backdrop-blur-2xl bg-white/80 dark:bg-neutral-900/80 border ${theme.cardBorder} ${theme.glow} flex flex-col justify-between overflow-hidden shadow-xl`}
+              className={`group relative rounded-2xl sm:rounded-[32px] p-5 sm:p-8 md:p-10 text-left transition-all duration-500 hover:-translate-y-2 backdrop-blur-2xl bg-white/80 dark:bg-neutral-900/80 border ${theme.cardBorder} ${theme.glow} flex flex-col justify-between overflow-hidden shadow-xl`}
             >
               {/* Top ambient radial gradient */}
               <div
