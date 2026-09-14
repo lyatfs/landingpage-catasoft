@@ -88,11 +88,11 @@ export default function Home() {
     setBallColor(theme.ballColor);
   };
 
-  // Background gradient based on scroll stage
+  // Background gradient based on scroll stage - upgraded to mesh-like premium feel
   const bgGradients = [
-    "radial-gradient(circle at center, #ffffff 0%, #ecefff 35%, #c2d1ff 100%)", // Hero
-    "radial-gradient(circle at center, #ffffff 0%, #fbffe5 38%, #e8ff9c 100%)", // Drop / Lime
-    "radial-gradient(circle at center, #ffffff 0%, #fff0f1 38%, #ffd1d5 100%)", // Shape / Pink
+    "radial-gradient(120% 120% at 50% 10%, #ffffff 0%, #f0f4ff 40%, #dbe4ff 100%)", // Hero
+    "radial-gradient(120% 120% at 50% 50%, #ffffff 0%, #f4ffed 40%, #e0fbc5 100%)", // Drop / Lime
+    "radial-gradient(120% 120% at 50% 90%, #ffffff 0%, #fff0f5 40%, #ffd6e6 100%)", // Shape / Pink
   ];
 
   return (

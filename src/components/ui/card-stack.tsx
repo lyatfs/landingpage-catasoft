@@ -340,11 +340,11 @@ export function CardStack<T extends CardStackItem>({
                   cardRefs.current[i] = el;
                 }}
                 className={cn(
-                  "absolute bottom-0 rounded-2xl border-2 transition-all duration-300 overflow-hidden",
-                  "will-change-transform select-none backdrop-blur-md bg-neutral-900/60",
+                  "absolute bottom-0 rounded-2xl border transition-all duration-500 overflow-hidden",
+                  "will-change-transform select-none backdrop-blur-3xl bg-gradient-to-br from-white/30 to-white/5 dark:from-neutral-900/60 dark:to-neutral-950/20",
                   isActive
-                    ? "cursor-grab active:cursor-grabbing border-white/80 ring-2 ring-brand-blue/60 shadow-[0_28px_65px_rgba(14,42,197,0.35)]"
-                    : "cursor-pointer border-white/30 hover:border-white/60 shadow-xl"
+                    ? "cursor-grab active:cursor-grabbing border-white/60 ring-1 ring-white/40 shadow-[0_30px_80px_rgba(47,105,255,0.25)]"
+                    : "cursor-pointer border-white/20 hover:border-white/50 shadow-2xl hover:shadow-[0_20px_60px_rgba(47,105,255,0.15)]"
                 )}
                 style={{
                   width: `min(${cardWidth}px, 88vw)`,
@@ -418,8 +418,8 @@ export function CardStack<T extends CardStackItem>({
 function DefaultFanCard({ item, active }: { item: CardStackItem; active: boolean }) {
   return (
     <div className="relative h-full w-full overflow-hidden group">
-      {/* Background Image */}
-      <div className="absolute inset-0 overflow-hidden bg-neutral-950">
+      {/* Background Image - Hologram Glass Effect */}
+      <div className="absolute inset-0 overflow-hidden mix-blend-overlay opacity-60 dark:opacity-40">
         {item.imageSrc ? (
           <img
             src={item.imageSrc}
@@ -432,7 +432,7 @@ function DefaultFanCard({ item, active }: { item: CardStackItem; active: boolean
             loading="eager"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-secondary text-sm text-muted-foreground">
+          <div className="flex h-full w-full items-center justify-center bg-secondary/50 text-sm text-white/50">
             CataSoft Product
           </div>
         )}
@@ -444,10 +444,10 @@ function DefaultFanCard({ item, active }: { item: CardStackItem; active: boolean
       {/* Gradient overlay for contrast */}
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 transition-opacity duration-500",
+          "pointer-events-none absolute inset-0 transition-opacity duration-700",
           active
-            ? "bg-gradient-to-t from-neutral-950/90 via-neutral-950/35 to-black/10"
-            : "bg-gradient-to-t from-neutral-950/95 via-neutral-950/60 to-black/30"
+            ? "bg-gradient-to-t from-neutral-950/90 via-neutral-950/20 to-black/5"
+            : "bg-gradient-to-t from-neutral-950/95 via-neutral-950/50 to-black/20"
         )}
       />
 
@@ -458,8 +458,8 @@ function DefaultFanCard({ item, active }: { item: CardStackItem; active: boolean
             className={cn(
               "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide backdrop-blur-md shadow-md transition-colors duration-300",
               active
-                ? "bg-brand-blue text-white shadow-brand-blue/30"
-                : "bg-neutral-800/80 text-neutral-300 border border-white/20"
+                ? "bg-brand-blue/80 text-white shadow-[0_0_15px_rgba(47,105,255,0.5)] border border-white/40"
+                : "bg-white/10 text-white/80 border border-white/20"
             )}
           >
             {active && <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />}
@@ -486,8 +486,8 @@ function DefaultFanCard({ item, active }: { item: CardStackItem; active: boolean
               className={cn(
                 "hidden sm:inline-flex text-xs font-medium border px-2.5 py-1 rounded-full backdrop-blur-sm transition-colors duration-300",
                 active
-                  ? "text-blue-200 border-white/30 bg-white/15"
-                  : "text-neutral-400 border-neutral-700 bg-neutral-800/50"
+                  ? "text-blue-100 border-white/30 bg-white/20"
+                  : "text-white/60 border-white/10 bg-white/5"
               )}
             >
               {item.ctaLabel}
@@ -520,10 +520,10 @@ function DefaultFanCard({ item, active }: { item: CardStackItem; active: boolean
                 }
               }}
               className={cn(
-                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md",
+                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 shadow-md backdrop-blur-md",
                 active
-                  ? "bg-brand-blue text-white hover:bg-blue-600 hover:scale-105 shadow-brand-blue/30 cursor-pointer pointer-events-auto"
-                  : "bg-white/15 text-white/70 hover:bg-white/25 cursor-pointer pointer-events-auto"
+                  ? "bg-brand-blue/80 text-white hover:bg-brand-blue border border-white/30 hover:scale-105 shadow-[0_0_20px_rgba(47,105,255,0.4)] cursor-pointer pointer-events-auto"
+                  : "bg-white/10 text-white/80 border border-white/20 hover:bg-white/20 cursor-pointer pointer-events-auto"
               )}
             >
               <span>{item.ctaLabel || "Khám phá giải pháp"}</span>

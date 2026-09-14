@@ -71,7 +71,7 @@ export function ProductsSection() {
     >
       {/* Section Header */}
       <div ref={headerRef} className="max-w-3xl mx-auto mb-10 md:mb-14 pointer-events-auto">
-        <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-neutral-950 dark:text-white tracking-tight leading-tight">
+        <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-blue via-purple-500 to-pink-500 drop-shadow-sm pb-1">
           {t.title}
         </h2>
         <p className="mt-4 text-base sm:text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed">

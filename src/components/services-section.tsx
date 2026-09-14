@@ -21,50 +21,50 @@ const blockThemeStyles = {
   blue: {
     badge: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25",
     dot: "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]",
-    cardBorder: "border-neutral-200/80 dark:border-neutral-800/80 hover:border-blue-500/40",
-    glow: "hover:shadow-[0_24px_64px_-12px_rgba(59,130,246,0.18)]",
-    ambientGradient: "from-blue-500/12 via-blue-500/[0.02] to-transparent",
+    cardBorder: "hover:border-blue-400/60 hover:ring-1 hover:ring-blue-400/30",
+    glow: "hover:shadow-[0_20px_60px_-15px_rgba(59,130,246,0.3)]",
+    ambientGradient: "from-blue-500/20 via-blue-500/[0.05] to-transparent",
     iconBg: "bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20",
     textHover: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
     check: "text-blue-600 dark:text-blue-400",
     metricValue: "from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300",
-    cta: "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40",
+    cta: "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] scale-100 active:scale-95 transition-all border border-blue-400/50 hover:border-transparent",
   },
   emerald: {
     badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
     dot: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]",
-    cardBorder: "border-neutral-200/80 dark:border-neutral-800/80 hover:border-emerald-500/40",
-    glow: "hover:shadow-[0_24px_64px_-12px_rgba(16,185,129,0.18)]",
-    ambientGradient: "from-emerald-500/12 via-emerald-500/[0.02] to-transparent",
+    cardBorder: "hover:border-emerald-400/60 hover:ring-1 hover:ring-emerald-400/30",
+    glow: "hover:shadow-[0_20px_60px_-15px_rgba(16,185,129,0.3)]",
+    ambientGradient: "from-emerald-500/20 via-emerald-500/[0.05] to-transparent",
     iconBg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
     textHover: "group-hover:text-emerald-600 dark:group-hover:text-emerald-400",
     check: "text-emerald-600 dark:text-emerald-400",
     metricValue: "from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300",
-    cta: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40",
+    cta: "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] scale-100 active:scale-95 transition-all border border-emerald-400/50 hover:border-transparent",
   },
   purple: {
     badge: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25",
     dot: "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]",
-    cardBorder: "border-neutral-200/80 dark:border-neutral-800/80 hover:border-purple-500/40",
-    glow: "hover:shadow-[0_24px_64px_-12px_rgba(168,85,247,0.18)]",
-    ambientGradient: "from-purple-500/12 via-purple-500/[0.02] to-transparent",
+    cardBorder: "hover:border-purple-400/60 hover:ring-1 hover:ring-purple-400/30",
+    glow: "hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.3)]",
+    ambientGradient: "from-purple-500/20 via-purple-500/[0.05] to-transparent",
     iconBg: "bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20",
     textHover: "group-hover:text-purple-600 dark:group-hover:text-purple-400",
     check: "text-purple-600 dark:text-purple-400",
     metricValue: "from-purple-600 to-pink-500 dark:from-purple-400 dark:to-pink-300",
-    cta: "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40",
+    cta: "bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] scale-100 active:scale-95 transition-all border border-purple-400/50 hover:border-transparent",
   },
   amber: {
     badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25",
     dot: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]",
-    cardBorder: "border-neutral-200/80 dark:border-neutral-800/80 hover:border-amber-500/40",
-    glow: "hover:shadow-[0_24px_64px_-12px_rgba(245,158,11,0.18)]",
-    ambientGradient: "from-amber-500/12 via-amber-500/[0.02] to-transparent",
+    cardBorder: "hover:border-amber-400/60 hover:ring-1 hover:ring-amber-400/30",
+    glow: "hover:shadow-[0_20px_60px_-15px_rgba(245,158,11,0.3)]",
+    ambientGradient: "from-amber-500/20 via-amber-500/[0.05] to-transparent",
     iconBg: "bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20",
     textHover: "group-hover:text-amber-600 dark:group-hover:text-amber-400",
     check: "text-amber-600 dark:text-amber-400",
     metricValue: "from-amber-500 to-orange-500 dark:from-amber-400 dark:to-orange-400",
-    cta: "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40",
+    cta: "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] scale-100 active:scale-95 transition-all border border-amber-400/50 hover:border-transparent",
   },
 };
 
@@ -157,7 +157,7 @@ export function ServicesSection() {
     >
       {/* Section Header */}
       <div ref={headerRef} className="max-w-3xl mx-auto mb-12 md:mb-16 pointer-events-auto">
-        <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-neutral-950 dark:text-white tracking-tight leading-tight">
+        <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-500 dark:from-white dark:to-neutral-400 drop-shadow-sm pb-1">
           {t.title}
         </h2>
         <p className="mt-4 text-base sm:text-lg font-montserrat font-normal text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed">
@@ -178,7 +178,7 @@ export function ServicesSection() {
           return (
             <div
               key={item.id}
-              className={`group relative rounded-2xl sm:rounded-[32px] p-5 sm:p-8 md:p-10 text-left transition-all duration-500 hover:-translate-y-2 backdrop-blur-2xl bg-white/80 dark:bg-neutral-900/80 border ${theme.cardBorder} ${theme.glow} flex flex-col justify-between overflow-hidden shadow-xl`}
+              className={`group relative rounded-2xl sm:rounded-[32px] p-5 sm:p-8 md:p-10 text-left transition-all duration-500 hover:-translate-y-2 backdrop-blur-3xl bg-gradient-to-br from-white/60 to-white/20 dark:from-neutral-900/60 dark:to-neutral-950/20 border border-white/60 dark:border-white/10 ${theme.cardBorder} ${theme.glow} flex flex-col justify-between overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] ring-1 ring-black/5 dark:ring-white/5`}
             >
               {/* Top ambient radial gradient */}
               <div

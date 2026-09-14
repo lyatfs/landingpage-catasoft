@@ -169,7 +169,7 @@ export const TestimonialsColumn = (props: {
                       "0 25px 50px -12px rgba(14, 42, 197, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(14, 42, 197, 0.15)",
                     transition: { type: "spring", stiffness: 400, damping: 17 },
                   }}
-                  className="p-8 md:p-10 rounded-3xl border border-white/60 dark:border-neutral-800 shadow-xl shadow-brand-blue/5 max-w-sm w-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl transition-all duration-300 cursor-default select-none group focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                  className="p-8 md:p-10 rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl shadow-brand-blue/5 max-w-sm w-full bg-white/60 dark:bg-neutral-900/40 backdrop-blur-2xl transition-all duration-500 cursor-default select-none group focus:outline-none focus:ring-2 focus:ring-brand-blue/30 hover:shadow-[0_20px_50px_rgba(47,105,255,0.15)] hover:border-brand-blue/30 dark:hover:border-brand-blue/30"
                 >
                   <blockquote className="m-0 p-0">
                     <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-normal text-sm md:text-base m-0 transition-colors duration-300">
@@ -240,7 +240,7 @@ export const TestimonialsSection = ({
         <div className="flex flex-col items-center justify-center max-w-2xl mx-auto mb-16 text-center">
           <h2
             id="testimonials-heading"
-            className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl text-neutral-950 dark:text-white tracking-tight leading-tight transition-colors"
+            className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-500 dark:from-white dark:to-neutral-400 drop-shadow-sm transition-colors"
           >
             {title}
           </h2>

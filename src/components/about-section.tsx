@@ -270,7 +270,7 @@ export function AboutSection() {
     >
       {/* 1. Header Section - Clean, modern, balanced */}
       <div className="max-w-4xl mx-auto mb-14 md:mb-16 pointer-events-auto">
-        <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-neutral-950 dark:text-white tracking-tight leading-tight">
+        <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-500 dark:from-white dark:to-neutral-400 drop-shadow-sm">
           {lang === "vi"
             ? "Đồng hành cùng Doanh nghiệp trong Kỷ nguyên Số"
             : "Partnering with Enterprises in the Digital Era"}
@@ -344,28 +344,36 @@ export function AboutSection() {
           </p>
         </div>
 
-        {/* 3 Horizontal Tabs at the Top */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 max-w-4xl mx-auto mb-8">
+        {/* Sleek Segmented Control */}
+        <div className="flex flex-col sm:flex-row items-center justify-center p-1.5 sm:p-2 bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[2rem] sm:rounded-full max-w-3xl mx-auto mb-10 shadow-sm relative z-20">
           {tabs.map((tab, idx) => {
             const isActive = activeTab === idx;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(idx)}
-                className={`w-full py-4 px-6 rounded-2xl font-montserrat font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer text-center ${
+                className={`relative w-full sm:w-1/3 py-3 sm:py-3.5 px-6 rounded-full font-montserrat font-bold text-sm sm:text-base transition-colors duration-300 cursor-pointer text-center z-10 ${
                   isActive
-                    ? "bg-blue-600 text-white border-2 border-blue-600 shadow-md"
-                    : "bg-white dark:bg-neutral-900 border-2 border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-neutral-800"
+                    ? "text-white drop-shadow-md"
+                    : "text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white"
                 }`}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabPill"
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)] -z-10"
+                    initial={false}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
                 {tab.tabLabel}
               </button>
             );
           })}
         </div>
 
-        {/* Content Panel: Large white container aligned with max-w-7xl, thin blue border, rounded corners */}
-        <div className="w-full max-w-7xl mx-auto bg-white dark:bg-neutral-900 border-2 border-blue-600/30 dark:border-blue-500/30 rounded-3xl p-6 sm:p-10 md:p-14 min-h-[480px] flex items-center text-left transition-colors shadow-sm">
+        {/* Glassmorphism Tab Content Panel */}
+        <div className="w-full max-w-7xl mx-auto bg-gradient-to-br from-white/60 to-white/20 dark:from-neutral-900/60 dark:to-neutral-950/20 backdrop-blur-3xl border border-white/50 dark:border-white/10 rounded-3xl p-6 sm:p-10 md:p-14 min-h-[480px] flex items-center text-left transition-colors shadow-2xl shadow-black/5 ring-1 ring-black/5 dark:ring-white/5">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentTab.id}
@@ -426,120 +434,91 @@ export function AboutSection() {
         </div>
       </div>
 
-      {/* 5. Company Info & Official Contact Card (Symmetric 2-Column Grid) */}
+      {/* 5. Bento Grid Layout for Contact & Highlights */}
       <div
         id="about-contact"
-        className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pointer-events-auto text-left"
+        className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-stretch pointer-events-auto text-left"
       >
-        {/* Left Column: Mission & Slogan */}
-        <div className="lg:col-span-6 rounded-3xl p-8 sm:p-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
+        {/* Big Card: Address & Direct Contact (Takes up 8 columns on large screens) */}
+        <div className="md:col-span-12 lg:col-span-8 rounded-[2rem] p-8 sm:p-10 bg-white/60 dark:bg-neutral-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 flex flex-col justify-between group hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500">
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="font-mono text-xs uppercase tracking-wider text-neutral-400 dark:text-neutral-500 block">
-                  CataSoft Corporation
-                </span>
-                <h3 className="font-montserrat font-bold text-xl text-neutral-950 dark:text-white">
-                  {t.missionTitle}
-                </h3>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="font-montserrat font-bold text-2xl text-neutral-950 dark:text-white tracking-tight">
+                {lang === "vi" ? "Thông tin Trụ sở & Liên hệ" : "Headquarters & Direct Contact"}
+              </h3>
+              <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <Building2 className="w-6 h-6" />
               </div>
             </div>
 
-            <p className="font-montserrat font-semibold text-base sm:text-lg text-blue-600 dark:text-blue-400 mb-3 leading-snug">
-              {lang === "vi"
-                ? "AI kiến tạo giá trị số — Better Technology, Brighter Future"
-                : "AI Creating Digital Value — Better Technology, Brighter Future"}
-            </p>
-
-            <p className="text-neutral-600 dark:text-neutral-300 text-sm sm:text-base leading-relaxed mb-4 font-normal">
-              {t.missionText}
-            </p>
-            <p className="text-neutral-600 dark:text-neutral-300 text-sm sm:text-base leading-relaxed font-normal">
-              {t.body}
-            </p>
-          </div>
-
-          <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800 mt-6 flex items-center gap-4 text-xs font-mono text-neutral-500 dark:text-neutral-400">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              Bảo mật chuẩn ISO/Enterprise
-            </span>
-            <span className="text-neutral-300 dark:text-neutral-700">·</span>
-            <span>Uptime 99.99%</span>
-          </div>
-        </div>
-
-        {/* Right Column: Address, Contact Details & Direct Call CTA */}
-        <div className="lg:col-span-6 rounded-3xl p-8 sm:p-10 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
-          <div className="space-y-6">
-            <h3 className="font-montserrat font-bold text-xl text-neutral-950 dark:text-white tracking-tight mb-4">
-              {lang === "vi" ? "Thông tin Trụ sở & Liên hệ" : "Headquarters & Direct Contact"}
-            </h3>
-
-            {/* Address */}
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5">
-                <MapPin className="w-5 h-5" />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10">
+              {/* Address */}
               <div>
-                <div className="text-xs font-mono uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mb-1">
-                  {t.addressLabel}
+                <div className="flex items-start gap-3 mb-2">
+                  <MapPin className="w-4 h-4 text-neutral-400 mt-0.5" />
+                  <div className="text-xs font-mono uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                    {t.addressLabel}
+                  </div>
                 </div>
-                <div className="text-sm sm:text-base font-medium text-neutral-900 dark:text-neutral-100 leading-snug">
+                <div className="text-sm sm:text-base font-medium text-neutral-900 dark:text-neutral-100 leading-snug pl-7">
                   {t.addressValue}
                 </div>
               </div>
-            </div>
 
-            {/* Phone & Email Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-800">
-                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shrink-0">
-                  <Phone className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider">
-                    {t.hotlineLabel}
+              {/* Phone & Email */}
+              <div className="space-y-5">
+                <div>
+                  <div className="flex items-start gap-3 mb-2">
+                    <Phone className="w-4 h-4 text-neutral-400 mt-0.5" />
+                    <div className="text-xs font-mono uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                      {t.hotlineLabel}
+                    </div>
                   </div>
-                  <a
-                    href="tel:0932322202"
-                    className="text-sm font-bold text-neutral-900 dark:text-white hover:text-blue-600 transition-colors truncate block"
-                  >
+                  <a href="tel:0932322202" className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white hover:text-blue-600 transition-colors pl-7 block">
                     {t.hotlineValue}
                   </a>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-800">
-                <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shrink-0">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider">
-                    {t.emailLabel}
+                <div>
+                  <div className="flex items-start gap-3 mb-2">
+                    <Mail className="w-4 h-4 text-neutral-400 mt-0.5" />
+                    <div className="text-xs font-mono uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                      {t.emailLabel}
+                    </div>
                   </div>
-                  <a
-                    href="mailto:contact@catasoft.net"
-                    className="text-sm font-bold text-neutral-900 dark:text-white hover:text-blue-600 transition-colors truncate block"
-                  >
+                  <a href="mailto:contact@catasoft.net" className="text-base font-semibold text-neutral-900 dark:text-white hover:text-blue-600 transition-colors pl-7 block">
                     {t.emailValue}
                   </a>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Action CTA Button */}
-          <div className="pt-6 border-t border-neutral-200 dark:border-neutral-800 mt-6">
+        {/* Small Cards Column (4 columns on large screens) */}
+        <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-5 sm:gap-6">
+          {/* Badge 1: Security & ISO */}
+          <div className="flex-1 rounded-[2rem] p-6 sm:p-8 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-neutral-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+            <div className="w-12 h-12 rounded-full bg-white dark:bg-black/50 shadow-sm flex items-center justify-center text-blue-600 dark:text-blue-400 mb-3 group-hover:scale-110 transition-transform duration-300">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h4 className="font-montserrat font-bold text-neutral-900 dark:text-white mb-1">
+              Bảo mật ISO/Enterprise
+            </h4>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">Tiêu chuẩn an toàn dữ liệu khắt khe nhất</p>
+          </div>
+
+          {/* Action CTA Box */}
+          <div className="flex-1 rounded-[2rem] p-6 sm:p-8 bg-neutral-900 dark:bg-white backdrop-blur-2xl shadow-xl shadow-black/10 flex flex-col justify-center items-center text-center group overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <h4 className="font-montserrat font-bold text-white dark:text-neutral-900 mb-4 relative z-10 text-lg">
+              {lang === "vi" ? "Bắt đầu hành trình chuyển đổi số?" : "Start your digital journey?"}
+            </h4>
             <a
               href="mailto:contact@catasoft.net?subject=Tu%20van%20chuyen%20doi%20so%20CataSoft"
-              className="w-full py-3.5 px-6 rounded-2xl font-montserrat font-semibold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-200 bg-blue-600 hover:bg-blue-700 text-white shadow-sm group/btn"
+              className="w-full py-3.5 px-6 rounded-full font-montserrat font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] active:scale-95 relative z-10"
             >
-              <span>{lang === "vi" ? "Đặt lịch Tư vấn cùng Chuyên gia" : "Schedule an Enterprise Consultation"}</span>
-              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
+              <span>{lang === "vi" ? "Đặt lịch Tư vấn" : "Book a Consultation"}</span>
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </a>
           </div>
         </div>
