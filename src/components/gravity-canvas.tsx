@@ -409,19 +409,33 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
       // Dynamically fade canvas opacity as user scrolls past hero so text stays 100% legible
       const heroF = 1 - smoothstep(0.35, 1.15, progress);
       const dropRaw = smoothstep(0.45, 1.35, progress);
-      const flyF = smoothstep(2.9, 3.8, progress);
-      const shapeF = smoothstep(1.6, 2.35, progress) * (1 - smoothstep(2.8, 3.4, progress));
+      const flyF = smoothstep(2.65, 3.35, progress);
+      const shapeF = smoothstep(1.6, 2.35, progress) * (1 - smoothstep(2.65, 3.15, progress));
       const dropF = dropRaw * (1 - smoothstep(1.45, 2.05, progress));
 
-      // Container opacity auto-adjustment (no React state re-render!)
-      const targetOpacity = Math.max(0.20, 0.72 - progress * 0.38);
-      container.style.opacity = targetOpacity.toFixed(2);
+      // Container opacity auto-adjustment (smoothly fade to 0 when scrolling past Products into Testimonials/About)
+      const canvasFade = 1 - smoothstep(2.6, 3.25, progress);
+      const baseOpacity = Math.max(0, 0.72 - progress * 0.22);
+      const targetOpacity = Math.max(0, baseOpacity * canvasFade);
+      container.style.opacity = targetOpacity.toFixed(3);
+      if (targetOpacity <= 0.001) {
+        container.style.visibility = "hidden";
+        return; // Skip rendering passes completely when off-screen to save GPU
+      } else {
+        container.style.visibility = "visible";
+      }
 
-      // Scroll-driven palette morph
+      // Scroll-driven palette morph: Hero Blue -> Lime -> Pink -> Clean Apple White
       const bLime = smoothstep(0.65, 1.25, progress);
       const bPink = smoothstep(1.55, 2.15, progress);
+      const bWhite = smoothstep(2.55, 3.15, progress);
+      const whiteColor = new THREE.Color(0xffffff);
       for (const role of ROLES) {
-        curPal[role].copy(palHero[role]).lerp(palLime[role], bLime).lerp(palPink[role], bPink);
+        curPal[role]
+          .copy(palHero[role])
+          .lerp(palLime[role], bLime)
+          .lerp(palPink[role], bPink)
+          .lerp(whiteColor, bWhite);
       }
       hemiLight.groundColor.copy(curPal.medium);
 
