@@ -1,6 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   MapPin,
   Phone,
@@ -250,6 +252,10 @@ const missionTabs: Record<"vi" | "en", TabItem[]> = {
   ],
 };
 
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export function AboutSection() {
   const { lang } = useLanguage();
   const t = content[lang].about;
@@ -263,13 +269,110 @@ export function AboutSection() {
 
   const [selectedPhoto, setSelectedPhoto] = useState<OfficePhoto | null>(null);
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const photosGridRef = useRef<HTMLDivElement>(null);
+  const tabsSectionRef = useRef<HTMLDivElement>(null);
+  const contactBentoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      if (headerRef.current) {
+        gsap.fromTo(
+          headerRef.current,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: "top 88%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (photosGridRef.current) {
+        const photos = photosGridRef.current.children;
+        gsap.fromTo(
+          photos,
+          { opacity: 0, y: 45, scale: 0.96 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.85,
+            stagger: 0.12,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: photosGridRef.current,
+              start: "top 84%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (tabsSectionRef.current) {
+        gsap.fromTo(
+          tabsSectionRef.current,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: tabsSectionRef.current,
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (contactBentoRef.current) {
+        const items = contactBentoRef.current.children;
+        gsap.fromTo(
+          items,
+          { opacity: 0, y: 40, scale: 0.98 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.85,
+            stagger: 0.14,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: contactBentoRef.current,
+              start: "top 86%",
+              once: true,
+            },
+          }
+        );
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="about"
       className="relative min-h-[100svh] py-24 md:py-32 px-6 md:px-12 flex flex-col justify-center items-center text-center z-10 pointer-events-none font-montserrat"
     >
       {/* 1. Header Section - Clean, modern, balanced */}
-      <div className="max-w-4xl mx-auto mb-14 md:mb-16 pointer-events-auto">
+      <div ref={headerRef} className="max-w-4xl mx-auto mb-14 md:mb-16 pointer-events-auto">
         <h2 className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-500 dark:from-white dark:to-neutral-400 drop-shadow-sm">
           {lang === "vi"
             ? "Đồng hành cùng Doanh nghiệp trong Kỷ nguyên Số"
@@ -284,7 +387,7 @@ export function AboutSection() {
 
       {/* 2. Visual Showcase: 4 Real Office & Team Photos (Neat 2x2 Balanced Grid) */}
       <div className="w-full max-w-7xl mx-auto mb-20 pointer-events-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch text-left">
+        <div ref={photosGridRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch text-left">
           {photos.map((photo) => (
             <div
               key={photo.id}
@@ -329,7 +432,7 @@ export function AboutSection() {
       </div>
 
       {/* 3. Interactive Corporate Tab Component: SỨ MỆNH · TẦM NHÌN · GIÁ TRỊ CỐT LÕI */}
-      <div className="w-full max-w-7xl mx-auto mb-20 pointer-events-auto">
+      <div ref={tabsSectionRef} className="w-full max-w-7xl mx-auto mb-20 pointer-events-auto">
         {/* Section Heading */}
         <div className="text-center mb-8">
           <h3 className="font-montserrat font-extrabold text-2xl sm:text-3xl md:text-4xl text-neutral-950 dark:text-white tracking-tight">
@@ -373,7 +476,7 @@ export function AboutSection() {
         </div>
 
         {/* Glassmorphism Tab Content Panel */}
-        <div className="w-full max-w-7xl mx-auto bg-gradient-to-br from-white/60 to-white/20 dark:from-neutral-900/60 dark:to-neutral-950/20 backdrop-blur-3xl border border-white/50 dark:border-white/10 rounded-3xl p-6 sm:p-10 md:p-14 min-h-[480px] flex items-center text-left transition-colors shadow-2xl shadow-black/5 ring-1 ring-black/5 dark:ring-white/5">
+        <div className="w-full max-w-7xl mx-auto bg-gradient-to-br from-white/85 to-white/60 dark:from-neutral-900/85 dark:to-neutral-950/75 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-3xl p-6 sm:p-10 md:p-14 min-h-[480px] flex items-center text-left transition-colors shadow-2xl shadow-black/5 ring-1 ring-black/5 dark:ring-white/5">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentTab.id}
@@ -436,11 +539,12 @@ export function AboutSection() {
 
       {/* 5. Bento Grid Layout for Contact & Highlights */}
       <div
+        ref={contactBentoRef}
         id="about-contact"
         className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-stretch pointer-events-auto text-left"
       >
         {/* Big Card: Address & Direct Contact (Takes up 8 columns on large screens) */}
-        <div className="md:col-span-12 lg:col-span-8 rounded-[2rem] p-8 sm:p-10 bg-white/60 dark:bg-neutral-900/50 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 flex flex-col justify-between group hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500">
+        <div className="md:col-span-12 lg:col-span-8 rounded-[2rem] p-8 sm:p-10 bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md border border-white/60 dark:border-white/10 shadow-xl shadow-black/5 flex flex-col justify-between group hover:shadow-2xl hover:shadow-blue-500/5 transition-[transform,box-shadow,border-color] duration-300 ease-out transform-gpu will-change-transform">
           <div>
             <div className="flex items-center justify-between mb-8">
               <h3 className="font-montserrat font-bold text-2xl text-neutral-950 dark:text-white tracking-tight">

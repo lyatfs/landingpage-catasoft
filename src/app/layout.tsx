@@ -85,8 +85,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="scroll-smooth">
+    <html lang="vi" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${montserrat.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased text-neutral-900 bg-[#f8fafc] min-h-screen selection:bg-brand-blue selection:text-white`}
       >
         <LanguageProvider>{children}</LanguageProvider>

@@ -15,8 +15,11 @@ export function SmoothBackground() {
 
   useEffect(() => {
     let smoothedP = 0;
+    let lastHeroOp = -1;
+    let lastLimeOp = -1;
+    let lastPinkOp = -1;
 
-    const onTick = () => {
+    const onTick = (_time: number, deltaTime: number) => {
       const scrollY = (window as any).lenis
         ? (window as any).lenis.scroll
         : window.scrollY || 0;
@@ -24,7 +27,8 @@ export function SmoothBackground() {
       const targetP = scrollY / vh;
 
       // Frame-rate independent liquid smoothing
-      smoothedP += (targetP - smoothedP) * 0.085;
+      const timeScale = Math.min(Math.max((deltaTime || 16.6) / 16.666, 0.2), 2.0);
+      smoothedP += (targetP - smoothedP) * Math.min(1, 0.1 * timeScale);
       const p = smoothedP;
 
       // Continuous waterfall transitions:
@@ -35,14 +39,22 @@ export function SmoothBackground() {
       // 3. Products Pink -> Apple White: between 2.25 and 2.95
       const t23 = smoothstep(2.25, 2.95, p);
 
-      if (layerHeroRef.current) {
-        layerHeroRef.current.style.opacity = Math.max(0, 1 - t01).toFixed(3);
+      const heroOp = Math.max(0, 1 - t01);
+      if (Math.abs(heroOp - lastHeroOp) > 0.004 && layerHeroRef.current) {
+        layerHeroRef.current.style.opacity = heroOp.toFixed(3);
+        lastHeroOp = heroOp;
       }
-      if (layerLimeRef.current) {
-        layerLimeRef.current.style.opacity = Math.max(0, 1 - t12).toFixed(3);
+
+      const limeOp = Math.max(0, 1 - t12);
+      if (Math.abs(limeOp - lastLimeOp) > 0.004 && layerLimeRef.current) {
+        layerLimeRef.current.style.opacity = limeOp.toFixed(3);
+        lastLimeOp = limeOp;
       }
-      if (layerPinkRef.current) {
-        layerPinkRef.current.style.opacity = Math.max(0, 1 - t23).toFixed(3);
+
+      const pinkOp = Math.max(0, 1 - t23);
+      if (Math.abs(pinkOp - lastPinkOp) > 0.004 && layerPinkRef.current) {
+        layerPinkRef.current.style.opacity = pinkOp.toFixed(3);
+        lastPinkOp = pinkOp;
       }
     };
 

@@ -56,8 +56,25 @@ html, body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: auto; /* Managed by smooth-scroll loop */
+  scroll-behavior: auto !important; /* Exclusively managed by Lenis loop */
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
+}
+
+/* Lenis Recommended Performance Rules */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 /* Custom Scrollbar */

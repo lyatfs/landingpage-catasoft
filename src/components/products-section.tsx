@@ -31,10 +31,11 @@ export function ProductsSection() {
             y: 0,
             duration: 0.85,
             ease: "power3.out",
+            clearProps: "transform",
             scrollTrigger: {
               trigger: headerRef.current,
               start: "top 88%",
-              toggleActions: "play none none reverse",
+              once: true,
             },
           }
         );
@@ -50,10 +51,11 @@ export function ProductsSection() {
             scale: 1,
             duration: 0.9,
             ease: "power3.out",
+            clearProps: "transform",
             scrollTrigger: {
               trigger: showcaseRef.current,
               start: "top 85%",
-              toggleActions: "play none none reverse",
+              once: true,
             },
           }
         );
@@ -85,8 +87,8 @@ export function ProductsSection() {
           items={t.items}
           initialIndex={0}
           autoAdvance={true}
-          intervalMs={3000}
-          pauseOnHover={false}
+          intervalMs={4500}
+          pauseOnHover={true}
           showDots={true}
           cardWidth={660}
           cardHeight={390}

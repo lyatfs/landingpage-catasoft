@@ -73,6 +73,10 @@ export default function Home() {
 
   const handleDone = useCallback(() => {
     setStarted(true);
+    // Refresh ScrollTrigger calculations after loader is removed
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 150);
   }, []);
 
   const handleSelectTheme = (theme: ThemeOption) => {

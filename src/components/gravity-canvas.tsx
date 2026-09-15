@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
+import gsap from "gsap";
 
 export interface GravityControl {
   progress: number;
@@ -272,8 +273,8 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
 
       const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMat);
       sphereMesh.scale.setScalar(radius);
-      // Optimize shadow casting: only ~35% of larger balls cast shadows to save 65% draw calls
-      sphereMesh.castShadow = i % 3 === 0;
+      // Optimize shadow casting: only large foreground balls cast shadows to save GPU draw calls
+      sphereMesh.castShadow = i % 4 === 0 && radius >= 0.44;
       sphereMesh.receiveShadow = true;
       scene.add(sphereMesh);
 
@@ -376,10 +377,14 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
     const deltaPos = new THREE.Vector3();
     const rotAxis = new THREE.Vector3();
     const prevMouseWorld = new THREE.Vector3();
+    const smoothMouseWorld = new THREE.Vector3(999, 999, 0);
     let mouseSpeed = 0;
+    let lastAppliedOpacity = -1;
 
     const simulateAndRender = () => {
-      animationFrameId = requestAnimationFrame(simulateAndRender);
+      const delta = clock.getDelta();
+      const dt = Math.min(delta, 0.05); // Cap to safeguard against background tab suspend
+      const timeScale = dt * 60; // 1.0 on 60 FPS, 0.5 on 120 FPS
       const time = clock.getElapsedTime();
       updateMouse3D();
 
@@ -403,7 +408,7 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
       const scrollY = (window as any).lenis ? (window as any).lenis.scroll : window.scrollY || 0;
       const vh = window.innerHeight || 1;
       const targetProgress = scrollY / vh;
-      smoothedProgress += (targetProgress - smoothedProgress) * 0.055;
+      smoothedProgress += (targetProgress - smoothedProgress) * Math.min(1, 0.12 * timeScale);
       const progress = smoothedProgress;
 
       // Dynamically fade canvas opacity as user scrolls past hero so text stays 100% legible
@@ -417,11 +422,18 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
       const canvasFade = 1 - smoothstep(2.6, 3.25, progress);
       const baseOpacity = Math.max(0, 0.72 - progress * 0.22);
       const targetOpacity = Math.max(0, baseOpacity * canvasFade);
-      container.style.opacity = targetOpacity.toFixed(3);
+      
+      if (Math.abs(lastAppliedOpacity - targetOpacity) > 0.004) {
+        container.style.opacity = targetOpacity.toFixed(3);
+        lastAppliedOpacity = targetOpacity;
+      }
+
       if (targetOpacity <= 0.001) {
-        container.style.visibility = "hidden";
-        return; // Skip rendering passes completely when off-screen to save GPU
-      } else {
+        if (container.style.visibility !== "hidden") {
+          container.style.visibility = "hidden";
+        }
+        return; // Skip rendering passes completely when off-screen to save 100% GPU
+      } else if (container.style.visibility !== "visible") {
         container.style.visibility = "visible";
       }
 
@@ -443,17 +455,25 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
       const attractionBoost = lerp(7.0, 1, entranceT);
       const isMouseInteracting =
         !cardHoverRef.current &&
+        heroF > 0.05 && // ONLY calculate mouse physics when Hero is active, zero overhead on card hover
         !!mousePos &&
         (Math.abs(mousePos.x) < 0.99 || Math.abs(mousePos.y) < 0.99);
 
-      mouseSpeed = isMouseInteracting ? mouseWorld3D.distanceTo(prevMouseWorld) : 0;
+      if (isMouseInteracting) {
+        smoothMouseWorld.lerp(mouseWorld3D, Math.min(1, 0.22 * timeScale));
+      } else {
+        smoothMouseWorld.set(999, 999, 0);
+      }
+
+      mouseSpeed = isMouseInteracting ? smoothMouseWorld.distanceTo(prevMouseWorld) : 0;
       if (mouseSpeed > 3) mouseSpeed = 3;
-      prevMouseWorld.copy(mouseWorld3D);
+      prevMouseWorld.copy(smoothMouseWorld);
 
       let damping = 0.91;
       damping = lerp(damping, 0.965, dropF);
       damping = lerp(damping, 0.9, shapeF);
       damping = lerp(damping, 0.985, flyF);
+      const effectiveDamping = Math.pow(damping, timeScale);
 
       const camZ = camera.position.z;
       const clusterActive = Math.max(heroF, entranceT < 1 ? 1 : 0);
@@ -462,39 +482,39 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
       for (let i = 0; i < balls.length; i++) {
         const b = balls[i];
         if (heroF > 0.01) {
-          b.velocity.x += Math.sin(time * 0.4 + b.id * 1.5) * 0.0004 * b.radius * heroF;
-          b.velocity.y += Math.cos(time * 0.5 + b.id * 1.2) * 0.0004 * b.radius * heroF;
-          b.velocity.z += Math.sin(time * 0.35 + b.id) * 0.0001 * heroF;
+          b.velocity.x += Math.sin(time * 0.4 + b.id * 1.5) * 0.0004 * b.radius * heroF * timeScale;
+          b.velocity.y += Math.cos(time * 0.5 + b.id * 1.2) * 0.0004 * b.radius * heroF * timeScale;
+          b.velocity.z += Math.sin(time * 0.35 + b.id) * 0.0001 * heroF * timeScale;
         }
 
         const clusterStrength = params.centerAttractForce * attractionBoost * clusterActive;
         if (clusterStrength > 0.00001) {
-          b.velocity.x += (0 - b.position.x) * clusterStrength * 0.38;
-          b.velocity.y += (0 - b.position.y) * clusterStrength * 1.85;
-          b.velocity.z += (0 - b.position.z) * clusterStrength * 1.8;
+          b.velocity.x += (0 - b.position.x) * clusterStrength * 0.38 * timeScale;
+          b.velocity.y += (0 - b.position.y) * clusterStrength * 1.85 * timeScale;
+          b.velocity.z += (0 - b.position.z) * clusterStrength * 1.8 * timeScale;
         }
 
         if (dropF > 0.001) {
-          b.velocity.y -= 0.0048 * dropF;
+          b.velocity.y -= 0.0048 * dropF * timeScale;
         }
 
         if (shapeF > 0.001) {
           const k = 0.032 * shapeF;
-          b.velocity.x += (b.shapeTarget.x - b.position.x) * k;
-          b.velocity.y += (b.shapeTarget.y - b.position.y) * k;
-          b.velocity.z += (b.shapeTarget.z - b.position.z) * k;
+          b.velocity.x += (b.shapeTarget.x - b.position.x) * k * timeScale;
+          b.velocity.y += (b.shapeTarget.y - b.position.y) * k * timeScale;
+          b.velocity.z += (b.shapeTarget.z - b.position.z) * k * timeScale;
         }
 
         if (flyF > 0.001) {
           const stagger = (b.id * 0.6180339887) % 1;
           const local = smoothstep(stagger * 0.55, stagger * 0.55 + 0.45, flyF);
-          b.velocity.z += 0.024 * local;
-          b.velocity.x += b.position.x * 0.003 * local;
-          b.velocity.y += b.position.y * 0.003 * local;
+          b.velocity.z += 0.024 * local * timeScale;
+          b.velocity.x += b.position.x * 0.003 * local * timeScale;
+          b.velocity.y += b.position.y * 0.003 * local * timeScale;
         }
 
         if (mousePos && isMouseInteracting) {
-          diffVec.subVectors(b.position, mouseWorld3D);
+          diffVec.subVectors(b.position, smoothMouseWorld);
           const rawDist = diffVec.length();
           const down = mousePos.isDown;
           const activeRepelRadius = down ? params.mouseRepelRadius * 1.35 : params.mouseRepelRadius;
@@ -507,12 +527,12 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
             diffVec.normalize();
             diffVec.z *= 0.12;
             diffVec.normalize();
-            b.velocity.addScaledVector(diffVec, push);
+            b.velocity.addScaledVector(diffVec, push * timeScale);
           }
         }
 
-        b.velocity.multiplyScalar(damping);
-        b.position.addScaledVector(b.velocity, 1);
+        b.velocity.multiplyScalar(effectiveDamping);
+        b.position.addScaledVector(b.velocity, timeScale);
 
         const c = b.isGlass ? curPal.glass : curPal[b.role];
         b.material.color.copy(c);
@@ -522,12 +542,12 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
           flyF > 0.001 ? 1 - smoothstep(camZ - 2.6, camZ - 0.3, b.position.z) : 1;
 
         const targetVis = b.radius * (1 - (1 - shapeScale) * shapeF);
-        b.visualScale += (targetVis - b.visualScale) * 0.12;
+        b.visualScale += (targetVis - b.visualScale) * Math.min(1, 0.12 * timeScale);
         b.sphere.scale.setScalar(b.visualScale);
       }
 
       // 2. Pairwise Collisions (Single fast pass with AABB pruning for rock-solid 60+ FPS)
-      const collideScale = 0.28 * (1 - 0.93 * shapeF) * (1 - flyF);
+      const collideScale = 0.28 * (1 - 0.93 * shapeF) * (1 - flyF) * Math.min(1, timeScale);
       for (let i = 0; i < balls.length; i++) {
         const b1 = balls[i];
         const p1 = b1.position;
@@ -629,7 +649,8 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
       }
     };
 
-    simulateAndRender();
+    // Synchronize WebGL render loop with GSAP's high-precision ticker
+    gsap.ticker.add(simulateAndRender);
 
     // Resize Handler
     const handleResize = () => {
@@ -646,7 +667,7 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
     resizeObserver.observe(container);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      gsap.ticker.remove(simulateAndRender);
       resizeObserver.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("mousedown", onMouseDown);
@@ -662,7 +683,7 @@ export function GravityCanvas({ started = true, ballColor, onReady }: GravityCan
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-0 pointer-events-none overflow-hidden transition-opacity duration-500 ease-out"
+      className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
       style={{
         width: "100%",
         height: "100svh",

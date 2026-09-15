@@ -230,8 +230,8 @@ export function CardStack<T extends CardStackItem>({
         gsap.to(el, {
           x: targetX,
           opacity: targetOpacity,
-          duration: isInitial ? 0 : 0.55,
-          ease: "power2.out",
+          duration: isInitial ? 0 : 0.65,
+          ease: "power3.out",
           force3D: true,
           overwrite: "auto",
           onComplete: () => {
@@ -250,8 +250,8 @@ export function CardStack<T extends CardStackItem>({
           rotationZ: targetRotateZ,
           rotationX: targetRotateX,
           opacity: targetOpacity,
-          duration: isInitial ? 0 : 0.55,
-          ease: "power2.out",
+          duration: isInitial ? 0 : 0.65,
+          ease: "power3.out",
           force3D: true,
           overwrite: "auto",
           onComplete: () => {
@@ -340,11 +340,11 @@ export function CardStack<T extends CardStackItem>({
                   cardRefs.current[i] = el;
                 }}
                 className={cn(
-                  "absolute bottom-0 rounded-2xl border transition-all duration-500 overflow-hidden",
-                  "will-change-transform select-none backdrop-blur-3xl bg-gradient-to-br from-white/30 to-white/5 dark:from-neutral-900/60 dark:to-neutral-950/20",
+                  "absolute bottom-0 rounded-2xl border transition-[border-color,box-shadow] duration-300 ease-out overflow-hidden",
+                  "will-change-transform select-none backdrop-blur-md bg-gradient-to-br from-neutral-900/90 via-neutral-900/80 to-neutral-950/90 text-white",
                   isActive
-                    ? "cursor-grab active:cursor-grabbing border-white/60 ring-1 ring-white/40 shadow-[0_30px_80px_rgba(47,105,255,0.25)]"
-                    : "cursor-pointer border-white/20 hover:border-white/50 shadow-2xl hover:shadow-[0_20px_60px_rgba(47,105,255,0.15)]"
+                    ? "cursor-grab active:cursor-grabbing border-white/60 ring-1 ring-white/40 shadow-[0_25px_60px_rgba(47,105,255,0.25)]"
+                    : "cursor-pointer border-white/20 hover:border-white/50 shadow-xl hover:shadow-[0_15px_40px_rgba(47,105,255,0.15)]"
                 )}
                 style={{
                   width: `min(${cardWidth}px, 88vw)`,

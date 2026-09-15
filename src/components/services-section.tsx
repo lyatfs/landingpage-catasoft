@@ -104,10 +104,11 @@ export function ServicesSection() {
             y: 0,
             duration: 0.85,
             ease: "power3.out",
+            clearProps: "transform",
             scrollTrigger: {
               trigger: headerRef.current,
               start: "top 88%",
-              toggleActions: "play none none reverse",
+              once: true,
             },
           }
         );
@@ -118,18 +119,19 @@ export function ServicesSection() {
         const cards = cardsGridRef.current.children;
         gsap.fromTo(
           cards,
-          { opacity: 0, y: 50, scale: 0.96 },
+          { opacity: 0, y: 45, scale: 0.96 },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.8,
+            duration: 0.85,
             stagger: 0.12,
             ease: "power3.out",
+            clearProps: "transform",
             scrollTrigger: {
               trigger: cardsGridRef.current,
-              start: "top 82%",
-              toggleActions: "play none none reverse",
+              start: "top 84%",
+              once: true,
             },
           }
         );
@@ -178,7 +180,7 @@ export function ServicesSection() {
           return (
             <div
               key={item.id}
-              className={`group relative rounded-2xl sm:rounded-[32px] p-5 sm:p-8 md:p-10 text-left transition-all duration-500 hover:-translate-y-2 backdrop-blur-3xl bg-gradient-to-br from-white/60 to-white/20 dark:from-neutral-900/60 dark:to-neutral-950/20 border border-white/60 dark:border-white/10 ${theme.cardBorder} ${theme.glow} flex flex-col justify-between overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] ring-1 ring-black/5 dark:ring-white/5`}
+              className={`group relative rounded-2xl sm:rounded-[32px] p-5 sm:p-8 md:p-10 text-left transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-2 transform-gpu will-change-transform backdrop-blur-md bg-gradient-to-br from-white/85 to-white/60 dark:from-neutral-900/85 dark:to-neutral-950/75 border border-white/70 dark:border-white/15 ${theme.cardBorder} ${theme.glow} flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.12)] ring-1 ring-black/5 dark:ring-white/5`}
             >
               {/* Top ambient radial gradient */}
               <div

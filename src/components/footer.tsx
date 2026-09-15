@@ -1,12 +1,49 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Github, Twitter, Linkedin, Facebook, Globe } from "lucide-react";
 import { useLanguage } from "@/context/language-context";
 import { content } from "@/lib/content";
 
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export function Footer() {
   const { lang } = useLanguage();
   const t = content[lang].footer;
+
+  const footerRef = useRef<HTMLElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!footerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      if (bodyRef.current) {
+        gsap.fromTo(
+          bodyRef.current.children,
+          { opacity: 0, y: 35 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            stagger: 0.12,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: bodyRef.current,
+              start: "top 92%",
+              once: true,
+            },
+          }
+        );
+      }
+    }, footerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   const scrollTo = (id: string) => {
     if (typeof window !== "undefined" && (window as any).lenis) {
@@ -35,7 +72,7 @@ export function Footer() {
         ];
 
   return (
-    <footer className="relative bg-neutral-950 text-white overflow-hidden z-20 border-t border-white/10">
+    <footer ref={footerRef} className="relative bg-neutral-950 text-white overflow-hidden z-20 border-t border-white/10">
       {/* Background Soft Glows */}
       <div
         className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full blur-3xl opacity-20"
@@ -65,7 +102,7 @@ export function Footer() {
       </div>
 
       {/* Compact Main Footer Body */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-6">
+      <div ref={bodyRef} className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-6">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           {/* Brand & Tagline */}
           <div className="md:col-span-6 flex flex-col items-start gap-3">

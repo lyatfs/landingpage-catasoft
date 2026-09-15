@@ -1,6 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Sun, Moon } from "lucide-react";
 
 // --- Types ---
@@ -169,7 +171,7 @@ export const TestimonialsColumn = (props: {
                       "0 25px 50px -12px rgba(14, 42, 197, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(14, 42, 197, 0.15)",
                     transition: { type: "spring", stiffness: 400, damping: 17 },
                   }}
-                  className="p-8 md:p-10 rounded-3xl border border-white/40 dark:border-white/10 shadow-2xl shadow-brand-blue/5 max-w-sm w-full bg-white/60 dark:bg-neutral-900/40 backdrop-blur-2xl transition-all duration-500 cursor-default select-none group focus:outline-none focus:ring-2 focus:ring-brand-blue/30 hover:shadow-[0_20px_50px_rgba(47,105,255,0.15)] hover:border-brand-blue/30 dark:hover:border-brand-blue/30"
+                  className="p-8 md:p-10 rounded-3xl border border-white/60 dark:border-white/10 shadow-xl shadow-brand-blue/5 max-w-sm w-full bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md transition-[border-color,box-shadow] duration-300 cursor-default select-none group focus:outline-none focus:ring-2 focus:ring-brand-blue/30 hover:shadow-[0_20px_40px_rgba(47,105,255,0.12)] hover:border-brand-blue/40 dark:hover:border-brand-blue/40"
                 >
                   <blockquote className="m-0 p-0">
                     <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-normal text-sm md:text-base m-0 transition-colors duration-300">
@@ -210,6 +212,10 @@ export interface TestimonialsSectionProps {
   data?: Testimonial[];
 }
 
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export const TestimonialsSection = ({
   title = "Đối tác & Khách hàng nói gì về CataSoft",
   subtitle = "Lắng nghe những chia sẻ thực tế từ các doanh nghiệp khi triển khai giải pháp AI, TMĐT và Chuyển đổi số cùng CataSoft.",
@@ -220,24 +226,66 @@ export const TestimonialsSection = ({
   const secondColumn = data.slice(3, 6);
   const thirdColumn = data.slice(6, 9);
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const columnsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      if (headerRef.current) {
+        gsap.fromTo(
+          headerRef.current,
+          { opacity: 0, y: 35 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.85,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: "top 88%",
+              once: true,
+            },
+          }
+        );
+      }
+
+      if (columnsRef.current) {
+        gsap.fromTo(
+          columnsRef.current,
+          { opacity: 0, y: 45, scale: 0.98 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.9,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: columnsRef.current,
+              start: "top 85%",
+              once: true,
+            },
+          }
+        );
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="testimonials"
       aria-labelledby="testimonials-heading"
       className="bg-transparent py-28 md:py-36 relative overflow-hidden z-20 pointer-events-auto"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
-        transition={{
-          duration: 1.2,
-          ease: [0.16, 1, 0.3, 1],
-          opacity: { duration: 0.8 },
-        }}
-        className="container px-4 z-10 mx-auto"
-      >
-        <div className="flex flex-col items-center justify-center max-w-2xl mx-auto mb-16 text-center">
+      <div className="container px-4 z-10 mx-auto">
+        <div ref={headerRef} className="flex flex-col items-center justify-center max-w-2xl mx-auto mb-16 text-center">
           <h2
             id="testimonials-heading"
             className="font-montserrat font-extrabold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-500 dark:from-white dark:to-neutral-400 drop-shadow-sm transition-colors"
@@ -250,6 +298,7 @@ export const TestimonialsSection = ({
         </div>
 
         <div
+          ref={columnsRef}
           className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)] max-h-[740px] overflow-hidden"
           role="region"
           aria-label="Scrolling Testimonials"
@@ -266,7 +315,7 @@ export const TestimonialsSection = ({
             duration={19}
           />
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };
