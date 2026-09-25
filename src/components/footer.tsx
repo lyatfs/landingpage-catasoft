@@ -114,8 +114,8 @@ export function Footer() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="font-display font-black text-xl tracking-widest text-white uppercase">
-                catasoft
+              <span className="font-montserrat font-black text-xl tracking-tight text-white uppercase leading-none">
+                CATASOFT
               </span>
             </div>
 

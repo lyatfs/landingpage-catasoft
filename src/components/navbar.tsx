@@ -52,8 +52,8 @@ export function Navbar({ onOpenControls }: NavbarProps) {
               className="w-full h-full object-contain"
             />
           </div>
-          <span className="font-display font-black text-xl md:text-2xl tracking-widest text-neutral-950 dark:text-white uppercase transition-colors group-hover:text-brand-blue">
-            catasoft
+          <span className="font-montserrat font-black text-xl md:text-2xl tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-600 dark:from-white dark:via-neutral-200 dark:to-neutral-400 group-hover:opacity-85 transition-opacity leading-none">
+            CATASOFT
           </span>
         </div>
 
